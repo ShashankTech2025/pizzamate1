@@ -1,0 +1,69 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidOrder(data) {
+      return data.restaurantId is string && data.restaurantId.size() <= 64
+        && data.tableNumber is number && data.tableNumber >= 1 && data.tableNumber <= 50
+        && data.sessionId is string && data.sessionId.size() <= 128
+        && data.status in ['new', 'preparing', 'ready', 'served', 'completed', 'cancelled']
+        && data.items is list && data.items.size() > 0 && data.items.size() <= 100
+        && data.createdAt is number;
+    }
+
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      allow get: if isValidId(orderId);
+      allow list: if true;
+      allow create: if isValidId(orderId) && isValidOrder(incoming());
+      allow update: if isValidId(orderId)
+        && isValidOrder(incoming())
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt', 'statusHistory', 'isAcknowledged', 'acknowledged', 'itemCount', 'items', 'specialInstructions']);
+      allow delete: if false;
+    }
+
+    // Customer Sessions Collection (Layer 3)
+    match /customer_sessions/{sessionId} {
+      allow get: if isValidId(sessionId);
+      allow list: if true;
+      allow create: if isValidId(sessionId)
+        && incoming().tableNumber is number
+        && incoming().sessionId is string
+        && incoming().status in ['active', 'terminated', 'expired']
+        && incoming().createdAt is number;
+      allow update: if isValidId(sessionId);
+      allow delete: if false;
+    }
+
+    // Security Audit Logs Collection (Layer 9)
+    match /security_logs/{logId} {
+      allow get, list: if true;
+      allow create: if isValidId(logId)
+        && incoming().event is string
+        && incoming().timestamp is number;
+      allow update, delete: if false; // Immutable audit trail
+    }
+  }
+}

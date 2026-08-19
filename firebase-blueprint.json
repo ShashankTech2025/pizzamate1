@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "A table dining order placed by a customer inside Pizzamate restaurant",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Order ID (e.g., PM-1045)"
+        },
+        "restaurantId": {
+          "type": "string",
+          "description": "Restaurant identifier"
+        },
+        "tableNumber": {
+          "type": "number",
+          "description": "Table number from 1 to 10"
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "Table session token"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Customer name if provided"
+        },
+        "customerPhone": {
+          "type": "string",
+          "description": "Customer phone number if provided"
+        },
+        "specialInstructions": {
+          "type": "string",
+          "description": "Special cooking instructions"
+        },
+        "items": {
+          "type": "array",
+          "description": "List of ordered items with quantity and notes"
+        },
+        "itemCount": {
+          "type": "number",
+          "description": "Total number of food items in order"
+        },
+        "subtotal": {
+          "type": "number",
+          "description": "Subtotal amount in INR"
+        },
+        "tax": {
+          "type": "number",
+          "description": "5% GST amount in INR"
+        },
+        "total": {
+          "type": "number",
+          "description": "Total order amount in INR"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["new", "preparing", "ready", "served"],
+          "description": "Current order fulfillment status"
+        },
+        "tableOrderSequence": {
+          "type": "number",
+          "description": "Sequence number for reorders on the same table session"
+        },
+        "verifiedNetwork": {
+          "type": "boolean",
+          "description": "Whether order was verified on restaurant Wi-Fi"
+        },
+        "networkName": {
+          "type": "string",
+          "description": "Network SSID identifier"
+        },
+        "createdAt": {
+          "type": "number",
+          "description": "Timestamp when order was placed"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Timestamp when order was last updated"
+        },
+        "statusHistory": {
+          "type": "array",
+          "description": "Log of status transitions with timestamps"
+        }
+      },
+      "required": ["restaurantId", "tableNumber", "sessionId", "items", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Collection of table dining orders in Pizzamate"
+    }
+  }
+}

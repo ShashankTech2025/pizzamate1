@@ -1,0 +1,6 @@
+{
+  "name": "Pizzamate – Digital QR Menu",
+  "description": "Premium mobile-first digital QR menu and restaurant showcase for Pizzamate, Kharadi, Pune.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
